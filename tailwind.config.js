@@ -29,14 +29,29 @@ export default {
           100: '#f4f4f5',
         },
         accent: {
-          DEFAULT: '#4f46e5',
-          soft: '#eef2ff',
-          ring: '#c7d2fe',
+          DEFAULT: '#f59e0b', // amber-500
+          hover: '#d97706', // amber-600
+          soft: '#fef3c7', // amber-100
+          softer: '#fffbeb', // amber-50
+          ring: '#fcd34d', // amber-300
+          ink: '#92400e', // amber-800
+        },
+        rose: {
+          DEFAULT: '#f43f5e', // rose-500
+          soft: '#ffe4e6', // rose-100
+          softer: '#fff1f2', // rose-50
+          ink: '#9f1239', // rose-800
         },
         priority: {
           high: '#dc2626',
+          'high-soft': '#fef2f2',
+          'high-ink': '#991b1b',
           med: '#d97706',
+          'med-soft': '#fffbeb',
+          'med-ink': '#92400e',
           low: '#0891b2',
+          'low-soft': '#ecfeff',
+          'low-ink': '#155e75',
         },
       },
       borderRadius: {

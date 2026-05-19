@@ -6,9 +6,16 @@ import {
   Plus,
   Hash,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useStore } from '../store';
 import type { View } from '../types';
 import { clsx } from '../lib/clsx';
+
+const springTap = {
+  whileHover: { scale: 1.02 },
+  whileTap: { scale: 0.95 },
+  transition: { type: 'spring' as const, stiffness: 500, damping: 22 },
+};
 
 interface Props {
   counts: { all: number; today: number; upcoming: number; completed: number };
@@ -32,24 +39,33 @@ export function Sidebar({ counts, allTags, onNewTask, onNavigate }: Props) {
 
   return (
     <div className="flex flex-col h-full p-4 gap-5">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-lg bg-ink-900 text-white grid place-items-center text-[13px] font-semibold tracking-tight">
-            T
-          </div>
-          <div className="font-semibold tracking-tight text-ink-900">
-            TaskPilot
-          </div>
-        </div>
+      <div className="flex items-center">
+        <img
+          src="/logo.png"
+          alt="TaskPilot"
+          className="h-16 w-auto select-none"
+          draggable={false}
+        />
       </div>
 
-      <button
+      <motion.button
         className="btn-primary w-full justify-center"
         onClick={onNewTask}
+        whileHover={{ scale: 1.03, y: -1 }}
+        whileTap={{ scale: 0.96 }}
+        transition={{ type: 'spring', stiffness: 500, damping: 18 }}
       >
-        <Plus className="h-4 w-4" />
+        <motion.span
+          initial={false}
+          animate={{ rotate: 0 }}
+          whileHover={{ rotate: 90 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 12 }}
+          className="flex"
+        >
+          <Plus className="h-4 w-4" />
+        </motion.span>
         New task
-      </button>
+      </motion.button>
 
       <nav className="flex flex-col gap-0.5">
         {navItems.map((item) => {
@@ -64,23 +80,30 @@ export function Sidebar({ counts, allTags, onNewTask, onNavigate }: Props) {
                   ? counts.upcoming
                   : counts.completed;
           return (
-            <button
+            <motion.button
               key={item.id}
               onClick={() => {
                 setView(item.id);
                 onNavigate();
               }}
+              {...springTap}
               className={clsx('nav-item w-full', active && 'nav-item-active')}
               aria-current={active ? 'page' : undefined}
             >
               <Icon className="h-4 w-4 text-ink-500" />
               <span className="flex-1 text-left">{item.label}</span>
               {count > 0 && (
-                <span className="text-xs text-ink-500 tabular-nums">
+                <motion.span
+                  key={count}
+                  initial={{ scale: 0.6, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: 'spring', stiffness: 600, damping: 18 }}
+                  className="text-xs text-ink-500 tabular-nums"
+                >
                   {count}
-                </span>
+                </motion.span>
               )}
-            </button>
+            </motion.button>
           );
         })}
       </nav>
@@ -94,12 +117,13 @@ export function Sidebar({ counts, allTags, onNewTask, onNavigate }: Props) {
             {allTags.map((tag) => {
               const active = tagFilter === tag;
               return (
-                <button
+                <motion.button
                   key={tag}
                   onClick={() => {
                     setTagFilter(active ? null : tag);
                     onNavigate();
                   }}
+                  {...springTap}
                   className={clsx(
                     'nav-item w-full',
                     active && 'nav-item-active',
@@ -107,7 +131,7 @@ export function Sidebar({ counts, allTags, onNewTask, onNavigate }: Props) {
                 >
                   <Hash className="h-3.5 w-3.5 text-ink-400" />
                   <span className="flex-1 text-left truncate">{tag}</span>
-                </button>
+                </motion.button>
               );
             })}
           </div>

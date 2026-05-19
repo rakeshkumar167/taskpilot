@@ -1,13 +1,14 @@
 import { Check, Pencil, Trash2, Calendar, Flag, Repeat } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import type { Task, Priority } from '../types';
 import { useStore } from '../store';
 import { formatDue, isOverdue } from '../lib/date';
 import { clsx } from '../lib/clsx';
 
-const priorityColor: Record<Priority, string> = {
-  high: 'text-priority-high',
-  medium: 'text-priority-med',
-  low: 'text-priority-low',
+const priorityPill: Record<Priority, string> = {
+  high: 'bg-priority-high-soft text-priority-high-ink ring-1 ring-inset ring-priority-high/20',
+  medium: 'bg-priority-med-soft text-priority-med-ink ring-1 ring-inset ring-priority-med/20',
+  low: 'bg-priority-low-soft text-priority-low-ink ring-1 ring-inset ring-priority-low/20',
 };
 
 const priorityLabel: Record<Priority, string> = {
@@ -29,25 +30,43 @@ export function TaskItem({ task, onEdit }: Props) {
   const overdue = !task.completed && isOverdue(task.dueDate);
 
   return (
-    <div
+    <motion.div
+      whileHover={{ y: -2, scale: 1.005 }}
+      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
       className={clsx(
-        'group card p-3 sm:p-3.5 flex items-start gap-3 transition-colors hover:border-ink-300',
+        'group card p-3 sm:p-3.5 flex items-start gap-3 transition-colors hover:border-accent/40 hover:shadow-md',
         task.completed && 'bg-ink-100/50',
       )}
     >
-      <button
+      <motion.button
         onClick={() => toggleTask(task.id)}
         aria-label={task.completed ? 'Mark as not done' : 'Mark as done'}
         aria-pressed={task.completed}
+        whileTap={{ scale: 0.8 }}
+        whileHover={{ scale: 1.1 }}
+        transition={{ type: 'spring', stiffness: 600, damping: 15 }}
         className={clsx(
           'mt-0.5 h-5 w-5 shrink-0 rounded-md border flex items-center justify-center transition-colors',
           task.completed
-            ? 'bg-ink-900 border-ink-900 text-white'
-            : 'border-ink-300 hover:border-ink-700 bg-surface',
+            ? 'bg-accent border-accent text-white'
+            : 'border-ink-300 hover:border-accent bg-surface',
         )}
       >
-        {task.completed && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
-      </button>
+        <AnimatePresence mode="wait" initial={false}>
+          {task.completed && (
+            <motion.span
+              key="check"
+              initial={{ scale: 0, rotate: -45 }}
+              animate={{ scale: 1, rotate: 0 }}
+              exit={{ scale: 0, rotate: 45 }}
+              transition={{ type: 'spring', stiffness: 700, damping: 18 }}
+              className="flex"
+            >
+              <Check className="h-3.5 w-3.5" strokeWidth={3} />
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </motion.button>
 
       <div className="flex-1 min-w-0">
         <div
@@ -86,8 +105,8 @@ export function TaskItem({ task, onEdit }: Props) {
           )}
           <span
             className={clsx(
-              'inline-flex items-center gap-1 text-xs',
-              priorityColor[task.priority],
+              'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[11px] font-medium',
+              priorityPill[task.priority],
             )}
           >
             <Flag className="h-3 w-3" />
@@ -95,7 +114,7 @@ export function TaskItem({ task, onEdit }: Props) {
           </span>
           {task.recurrence && (
             <span
-              className="inline-flex items-center gap-1 text-xs text-ink-500"
+              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[11px] font-medium bg-rose-soft text-rose-ink ring-1 ring-inset ring-rose/20"
               title={`Repeats ${task.recurrence.frequency}${task.recurrence.frequency === 'custom' ? ` (every ${task.recurrence.interval} days)` : ''} until ${task.recurrence.endDate}`}
             >
               <Repeat className="h-3 w-3" />
@@ -133,6 +152,6 @@ export function TaskItem({ task, onEdit }: Props) {
           <Trash2 className="h-3.5 w-3.5" />
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }

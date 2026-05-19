@@ -19,14 +19,19 @@ export function TaskList({ tasks, onEdit }: Props) {
   return (
     <div className="space-y-2">
       <AnimatePresence initial={false}>
-        {tasks.map((t) => (
+        {tasks.map((t, i) => (
           <motion.div
             key={t.id}
             layout
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.16, ease: 'easeOut' }}
+            initial={{ opacity: 0, y: -8, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 24, scale: 0.9 }}
+            transition={{
+              type: 'spring',
+              stiffness: 420,
+              damping: 28,
+              delay: Math.min(i * 0.02, 0.2),
+            }}
           >
             <TaskItem task={t} onEdit={onEdit} />
           </motion.div>

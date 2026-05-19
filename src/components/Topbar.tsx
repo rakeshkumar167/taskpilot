@@ -1,4 +1,5 @@
 import { Search, SlidersHorizontal, X, Plus } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useStore } from '../store';
 import type { Priority, View } from '../types';
 import { clsx } from '../lib/clsx';
@@ -47,20 +48,26 @@ export function Topbar({ onNewTask }: { onNewTask: () => void }) {
               {viewSubtitle[view]}
             </p>
           </div>
-          <button
+          <motion.button
             className="btn-primary hidden sm:inline-flex"
             onClick={onNewTask}
+            whileHover={{ scale: 1.04, y: -1 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 18 }}
           >
             <Plus className="h-4 w-4" />
             New task
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             className="btn-primary sm:hidden h-10 w-10 p-0"
             onClick={onNewTask}
             aria-label="New task"
+            whileHover={{ scale: 1.06, rotate: 90 }}
+            whileTap={{ scale: 0.9 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 15 }}
           >
             <Plus className="h-5 w-5" />
-          </button>
+          </motion.button>
         </div>
 
         <div className="mt-4 flex items-center gap-2">
@@ -84,20 +91,28 @@ export function Topbar({ onNewTask }: { onNewTask: () => void }) {
               </button>
             )}
           </div>
-          <button
+          <motion.button
             className={clsx(
               'btn-soft h-[38px]',
               showFilters && 'bg-ink-200 text-ink-900',
             )}
             onClick={() => setShowFilters((v) => !v)}
             aria-expanded={showFilters}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 20 }}
           >
             <SlidersHorizontal className="h-4 w-4" />
             <span className="hidden sm:inline">Filters</span>
             {hasFilters && (
-              <span className="ml-1 h-1.5 w-1.5 rounded-full bg-accent" />
+              <motion.span
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 700, damping: 15 }}
+                className="ml-1 h-1.5 w-1.5 rounded-full bg-accent"
+              />
             )}
-          </button>
+          </motion.button>
         </div>
 
         {showFilters && (

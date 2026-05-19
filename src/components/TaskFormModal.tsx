@@ -166,10 +166,10 @@ export function TaskFormModal({ open, onClose, editingTask, existingTags }: Prop
           aria-labelledby="task-modal-title"
         >
           <motion.div
-            initial={{ y: 30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 20, opacity: 0 }}
-            transition={{ duration: 0.18, ease: 'easeOut' }}
+            initial={{ y: 40, opacity: 0, scale: 0.96 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: 20, opacity: 0, scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 28 }}
             onClick={(e) => e.stopPropagation()}
             className="w-full sm:max-w-lg bg-surface rounded-t-2xl sm:rounded-2xl border border-ink-200 shadow-card"
           >
