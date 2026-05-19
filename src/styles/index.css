@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    @apply bg-canvas text-ink-900 font-sans antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent-ring ring-offset-2 ring-offset-canvas rounded-md;
+  }
+  ::selection {
+    background-color: #e0e7ff;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-1.5 font-medium text-sm rounded-lg transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-ink-900 text-white hover:bg-ink-700 px-3.5 py-2;
+  }
+  .btn-ghost {
+    @apply btn text-ink-700 hover:text-ink-900 hover:bg-ink-100 px-2.5 py-1.5;
+  }
+  .btn-soft {
+    @apply btn bg-ink-100 text-ink-700 hover:bg-ink-200 px-3 py-1.5;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-ink-100 text-ink-700;
+  }
+  .input {
+    @apply w-full bg-surface border border-ink-200 rounded-lg px-3 py-2 text-sm placeholder:text-ink-400 focus:border-ink-400 focus:ring-0 transition-colors;
+  }
+  .card {
+    @apply bg-surface border border-ink-200 rounded-xl2 shadow-card;
+  }
+  .divider {
+    @apply h-px bg-ink-200;
+  }
+  .nav-item {
+    @apply flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-ink-700 hover:bg-ink-100 transition-colors;
+  }
+  .nav-item-active {
+    @apply bg-ink-100 text-ink-900;
+  }
+}
+
+/* Hide scrollbar but keep functionality on a couple of containers */
+.scroll-soft::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scroll-soft::-webkit-scrollbar-thumb {
+  background-color: #e4e4e7;
+  border-radius: 8px;
+}
+.scroll-soft::-webkit-scrollbar-thumb:hover {
+  background-color: #d4d4d8;
+}
