@@ -1,6 +1,7 @@
-import { Search, SlidersHorizontal, X, Plus } from 'lucide-react';
+import { Search, SlidersHorizontal, X, Plus, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useStore } from '../store';
+import { logout } from '../lib/api';
 import type { Priority, View } from '../types';
 import { clsx } from '../lib/clsx';
 import { useState } from 'react';
@@ -27,8 +28,15 @@ export function Topbar({ onNewTask }: { onNewTask: () => void }) {
   const setStatusFilter = useStore((s) => s.setStatusFilter);
   const setTagFilter = useStore((s) => s.setTagFilter);
   const clearFilters = useStore((s) => s.clearFilters);
+  const user = useStore((s) => s.user);
 
   const [showFilters, setShowFilters] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+
+  const handleLogout = async () => {
+    await logout();
+    window.location.href = '/';
+  };
 
   const hasFilters =
     filters.search ||
@@ -113,6 +121,37 @@ export function Topbar({ onNewTask }: { onNewTask: () => void }) {
               />
             )}
           </motion.button>
+          <div className="relative">
+            {user && (
+              <>
+                <button
+                  onClick={() => setShowProfile(!showProfile)}
+                  className="flex items-center gap-2 px-3 py-2 rounded hover:bg-ink-50 transition-colors"
+                >
+                  {user.avatar && (
+                    <img src={user.avatar} alt={user.name} className="w-6 h-6 rounded-full" />
+                  )}
+                  <span className="text-sm font-medium truncate max-w-xs">{user.name}</span>
+                </button>
+
+                {showProfile && (
+                  <div className="absolute right-0 top-full mt-1 bg-white border border-ink-200 rounded shadow-lg z-50">
+                    <div className="px-4 py-3 border-b border-ink-200">
+                      <p className="text-sm font-medium">{user.name}</p>
+                      <p className="text-xs text-ink-500">{user.email}</p>
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-ink-900 hover:bg-ink-50 transition-colors text-left"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sign out
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
 
         {showFilters && (
