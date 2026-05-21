@@ -29,12 +29,12 @@ export default {
           100: '#f4f4f5',
         },
         accent: {
-          DEFAULT: '#7c3aed', // violet-600
-          hover: '#6d28d9', // violet-700
-          soft: '#ede9fe', // violet-100
-          softer: '#f5f3ff', // violet-50
-          ring: '#c4b5fd', // violet-300
-          ink: '#5b21b6', // violet-800
+          DEFAULT: '#059669', // emerald-600
+          hover: '#047857', // emerald-700
+          soft: '#d1fae5', // emerald-100
+          softer: '#ecfdf5', // emerald-50
+          ring: '#6ee7b7', // emerald-300
+          ink: '#065f46', // emerald-800
         },
         rose: {
           DEFAULT: '#ec4899', // pink-500
@@ -43,10 +43,10 @@ export default {
           ink: '#9d174d', // pink-800
         },
         mint: {
-          DEFAULT: '#10b981', // emerald-500
-          soft: '#d1fae5', // emerald-100
-          softer: '#ecfdf5', // emerald-50
-          ink: '#065f46', // emerald-800
+          DEFAULT: '#84cc16', // lime-500
+          soft: '#ecfccb', // lime-100
+          softer: '#f7fee7', // lime-50
+          ink: '#3f6212', // lime-800
         },
         sky: {
           DEFAULT: '#0ea5e9', // sky-500
@@ -64,12 +64,12 @@ export default {
           high: '#ec4899', // pink-500
           'high-soft': '#fce7f3',
           'high-ink': '#9d174d',
-          med: '#7c3aed', // violet-600
-          'med-soft': '#ede9fe',
-          'med-ink': '#5b21b6',
-          low: '#10b981', // emerald-500
-          'low-soft': '#d1fae5',
-          'low-ink': '#065f46',
+          med: '#059669', // emerald-600
+          'med-soft': '#d1fae5',
+          'med-ink': '#065f46',
+          low: '#0ea5e9', // sky-500
+          'low-soft': '#e0f2fe',
+          'low-ink': '#075985',
         },
       },
       borderRadius: {
