@@ -43,62 +43,70 @@ export async function exchangeCodeForUser(code: string): Promise<User> {
   const googleUser = await userRes.json();
 
   // Find or create user in database
-  let user = await db.execute(
-    'SELECT * FROM users WHERE googleId = ?',
-    [googleUser.id]
-  );
+  let user = await db.execute({
+    sql: 'SELECT * FROM users WHERE googleId = ?',
+    args: [googleUser.id],
+  });
 
   if (user.rows.length === 0) {
     const userId = crypto.randomUUID();
-    await db.execute(
-      'INSERT INTO users (id, googleId, email, name, avatar, createdAt) VALUES (?, ?, ?, ?, ?, ?)',
-      [userId, googleUser.id, googleUser.email, googleUser.name, googleUser.picture, Date.now().toString()]
-    );
-    user = await db.execute('SELECT * FROM users WHERE id = ?', [userId]);
+    await db.execute({
+      sql: 'INSERT INTO users (id, googleId, email, name, avatar, createdAt) VALUES (?, ?, ?, ?, ?, ?)',
+      args: [userId, googleUser.id, googleUser.email, googleUser.name, googleUser.picture ?? null, Date.now()],
+    });
+    user = await db.execute({
+      sql: 'SELECT * FROM users WHERE id = ?',
+      args: [userId],
+    });
   }
 
+  const row = user.rows[0];
   return {
-    id: user.rows[0].id,
-    googleId: user.rows[0].googleId,
-    email: user.rows[0].email,
-    name: user.rows[0].name,
-    avatar: user.rows[0].avatar,
+    id: String(row.id),
+    googleId: String(row.googleId),
+    email: String(row.email),
+    name: String(row.name),
+    avatar: row.avatar ? String(row.avatar) : undefined,
   };
 }
 
 export async function createSession(userId: string): Promise<string> {
   const sessionId = crypto.randomUUID();
-  const expiresAt = Date.now().toString() + SESSION_DURATION;
+  const expiresAt = Date.now() + SESSION_DURATION;
 
-  await db.execute(
-    'INSERT INTO sessions (id, userId, expiresAt, createdAt) VALUES (?, ?, ?, ?)',
-    [sessionId, userId, expiresAt, Date.now().toString()]
-  );
+  await db.execute({
+    sql: 'INSERT INTO sessions (id, userId, expiresAt, createdAt) VALUES (?, ?, ?, ?)',
+    args: [sessionId, userId, expiresAt, Date.now()],
+  });
 
   return sessionId;
 }
 
 export async function validateSession(sessionId: string): Promise<User | null> {
-  const result = await db.execute(
-    'SELECT u.* FROM users u JOIN sessions s ON u.id = s.userId WHERE s.id = ? AND s.expiresAt > ?',
-    [sessionId, Date.now().toString()]
-  );
+  const result = await db.execute({
+    sql: 'SELECT u.* FROM users u JOIN sessions s ON u.id = s.userId WHERE s.id = ? AND s.expiresAt > ?',
+    args: [sessionId, Date.now()],
+  });
 
   if (result.rows.length === 0) {
     return null;
   }
 
+  const row = result.rows[0];
   return {
-    id: result.rows[0].id,
-    googleId: result.rows[0].googleId,
-    email: result.rows[0].email,
-    name: result.rows[0].name,
-    avatar: result.rows[0].avatar,
+    id: String(row.id),
+    googleId: String(row.googleId),
+    email: String(row.email),
+    name: String(row.name),
+    avatar: row.avatar ? String(row.avatar) : undefined,
   };
 }
 
 export async function deleteSession(sessionId: string): Promise<void> {
-  await db.execute('DELETE FROM sessions WHERE id = ?', [sessionId]);
+  await db.execute({
+    sql: 'DELETE FROM sessions WHERE id = ?',
+    args: [sessionId],
+  });
 }
 
 export function setSessionCookie(sessionId: string): string {

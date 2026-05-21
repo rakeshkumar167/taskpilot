@@ -106,15 +106,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(401).json({ error: 'Session expired' });
       }
 
-      const result = await db.execute(
-        'SELECT * FROM tasks WHERE userId = ? ORDER BY createdAt DESC',
-        [user.id]
-      );
+      const result = await db.execute({
+        sql: 'SELECT * FROM tasks WHERE userId = ? ORDER BY createdAt DESC',
+        args: [user.id],
+      });
 
       const tasks = result.rows.map((row: any) => ({
-        ...row,
+        id: String(row.id),
+        title: String(row.title),
+        notes: row.notes ? String(row.notes) : undefined,
+        dueDate: row.dueDate ? String(row.dueDate) : undefined,
+        priority: String(row.priority),
         completed: Boolean(row.completed),
-        tags: row.tags ? JSON.parse(row.tags) : [],
+        tags: row.tags ? JSON.parse(String(row.tags)) : [],
+        createdAt: Number(row.createdAt),
       }));
 
       return res.status(200).json({ tasks });
@@ -132,12 +137,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(401).json({ error: 'Session expired' });
       }
 
-      const { id, title, notes, dueDate, priority, tags } = req.body;
+      const { id, title, notes, dueDate, priority, tags, createdAt } = req.body;
 
-      await db.execute(
-        'INSERT INTO tasks (id, userId, title, notes, dueDate, priority, completed, tags, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        [id, user.id, title, notes, dueDate, priority, 0, JSON.stringify(tags), Date.now().toString()]
-      );
+      await db.execute({
+        sql: 'INSERT INTO tasks (id, userId, title, notes, dueDate, priority, completed, tags, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        args: [
+          id,
+          user.id,
+          title,
+          notes ?? null,
+          dueDate ?? null,
+          priority,
+          0,
+          JSON.stringify(tags ?? []),
+          createdAt ?? Date.now(),
+        ],
+      });
 
       return res.status(201).json({ id });
     }
@@ -157,10 +172,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const taskId = pathname.split('/').pop();
       const { title, notes, dueDate, priority, completed, tags } = req.body;
 
-      await db.execute(
-        'UPDATE tasks SET title = ?, notes = ?, dueDate = ?, priority = ?, completed = ?, tags = ? WHERE id = ? AND userId = ?',
-        [title, notes, dueDate, priority, completed ? 1 : 0, JSON.stringify(tags), taskId, user.id]
-      );
+      await db.execute({
+        sql: 'UPDATE tasks SET title = ?, notes = ?, dueDate = ?, priority = ?, completed = ?, tags = ? WHERE id = ? AND userId = ?',
+        args: [
+          title,
+          notes ?? null,
+          dueDate ?? null,
+          priority,
+          completed ? 1 : 0,
+          JSON.stringify(tags ?? []),
+          taskId ?? '',
+          user.id,
+        ],
+      });
 
       return res.status(200).json({ success: true });
     }

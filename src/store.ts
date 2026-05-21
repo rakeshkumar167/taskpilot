@@ -1,6 +1,10 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { fetchTasks } from './lib/api';
+import {
+  fetchTasks,
+  createTask as apiCreateTask,
+  updateTask as apiUpdateTask,
+  deleteTask as apiDeleteTask,
+} from './lib/api';
 import type { Filters, Priority, Recurrence, Task, View } from './types';
 import type { User } from './types/auth';
 
@@ -24,11 +28,11 @@ interface State {
     dueDate?: string;
     tags: string[];
     recurrence?: Recurrence;
-  }) => void;
-  updateTask: (id: string, patch: Partial<Task>) => void;
-  toggleTask: (id: string) => void;
-  deleteTask: (id: string) => void;
-  clearCompleted: () => void;
+  }) => Promise<void>;
+  updateTask: (id: string, patch: Partial<Task>) => Promise<void>;
+  toggleTask: (id: string) => Promise<void>;
+  deleteTask: (id: string) => Promise<void>;
+  clearCompleted: () => Promise<void>;
 }
 
 const uid = () =>
@@ -67,7 +71,6 @@ const advanceDate = (d: Date, recurrence: Recurrence): Date => {
   return next;
 };
 
-// Cap how many instances we will generate to keep the list manageable.
 const MAX_RECURRENCE_INSTANCES = 365;
 
 const expandRecurrence = (
@@ -84,55 +87,6 @@ const expandRecurrence = (
   return dates;
 };
 
-const seedTasks = (): Task[] => {
-  const now = Date.now();
-  const today = new Date();
-  const iso = (offsetDays: number) => {
-    const d = new Date(today);
-    d.setDate(d.getDate() + offsetDays);
-    return d.toISOString().slice(0, 10);
-  };
-  return [
-    {
-      id: uid(),
-      title: 'Plan the week',
-      notes: 'Block focus time and review priorities',
-      completed: false,
-      priority: 'high',
-      dueDate: iso(0),
-      tags: ['work'],
-      createdAt: now - 1000 * 60 * 60 * 6,
-    },
-    {
-      id: uid(),
-      title: 'Reply to design review',
-      completed: false,
-      priority: 'medium',
-      dueDate: iso(0),
-      tags: ['work', 'design'],
-      createdAt: now - 1000 * 60 * 60 * 4,
-    },
-    {
-      id: uid(),
-      title: 'Pick up groceries',
-      completed: false,
-      priority: 'low',
-      dueDate: iso(1),
-      tags: ['personal'],
-      createdAt: now - 1000 * 60 * 60 * 2,
-    },
-    {
-      id: uid(),
-      title: 'Read chapter 4',
-      completed: true,
-      priority: 'low',
-      tags: ['reading'],
-      createdAt: now - 1000 * 60 * 60 * 24,
-      completedAt: now - 1000 * 60 * 60 * 20,
-    },
-  ];
-};
-
 const defaultFilters: Filters = {
   search: '',
   priority: 'all',
@@ -140,94 +94,127 @@ const defaultFilters: Filters = {
   tag: null,
 };
 
-export const useStore = create<State>()(
-  persist(
-    (set) => ({
-      tasks: seedTasks(),
-      view: 'all',
-      filters: defaultFilters,
-      user: null,
-      setView: (v) => set({ view: v }),
-      setSearch: (q) => set((s) => ({ filters: { ...s.filters, search: q } })),
-      setPriorityFilter: (p) =>
-        set((s) => ({ filters: { ...s.filters, priority: p } })),
-      setStatusFilter: (st) =>
-        set((s) => ({ filters: { ...s.filters, status: st } })),
-      setTagFilter: (tag) => set((s) => ({ filters: { ...s.filters, tag } })),
-      clearFilters: () => set({ filters: defaultFilters }),
-      setUser: (user) => set({ user }),
-      loadTasks: async () => {
-        try {
-          const tasks = await fetchTasks();
-          set({ tasks });
-        } catch (error) {
-          console.error('Failed to load tasks:', error);
-        }
-      },
-      addTask: ({ title, notes, priority, dueDate, tags, recurrence }) =>
-        set((s) => {
-          const cleanTitle = title.trim();
-          const cleanNotes = notes?.trim() || undefined;
-          const createdAt = Date.now();
+export const useStore = create<State>((set, get) => ({
+  tasks: [],
+  view: 'all',
+  filters: defaultFilters,
+  user: null,
+  setView: (v) => set({ view: v }),
+  setSearch: (q) => set((s) => ({ filters: { ...s.filters, search: q } })),
+  setPriorityFilter: (p) =>
+    set((s) => ({ filters: { ...s.filters, priority: p } })),
+  setStatusFilter: (st) =>
+    set((s) => ({ filters: { ...s.filters, status: st } })),
+  setTagFilter: (tag) => set((s) => ({ filters: { ...s.filters, tag } })),
+  clearFilters: () => set({ filters: defaultFilters }),
+  setUser: (user) => set({ user }),
 
-          if (recurrence && dueDate) {
-            const groupId = uid();
-            const occurrences = expandRecurrence(dueDate, recurrence);
-            const newTasks: Task[] = occurrences.map((iso, idx) => ({
-              id: uid(),
-              title: cleanTitle,
-              notes: cleanNotes,
-              completed: false,
-              priority,
-              dueDate: iso,
-              tags,
-              createdAt: createdAt + idx, // stable ordering
-              recurrence,
-              recurrenceGroupId: groupId,
-            }));
-            return { tasks: [...newTasks, ...s.tasks] };
-          }
+  loadTasks: async () => {
+    try {
+      const tasks = await fetchTasks();
+      set({ tasks });
+    } catch (error) {
+      console.error('Failed to load tasks:', error);
+    }
+  },
 
-          return {
-            tasks: [
-              {
-                id: uid(),
-                title: cleanTitle,
-                notes: cleanNotes,
-                completed: false,
-                priority,
-                dueDate: dueDate || undefined,
-                tags,
-                createdAt,
-              },
-              ...s.tasks,
-            ],
-          };
-        }),
-      updateTask: (id, patch) =>
-        set((s) => ({
-          tasks: s.tasks.map((t) => (t.id === id ? { ...t, ...patch } : t)),
-        })),
-      toggleTask: (id) =>
-        set((s) => ({
-          tasks: s.tasks.map((t) =>
-            t.id === id
-              ? {
-                  ...t,
-                  completed: !t.completed,
-                  completedAt: !t.completed ? Date.now() : undefined,
-                }
-              : t,
-          ),
-        })),
-      deleteTask: (id) =>
-        set((s) => ({ tasks: s.tasks.filter((t) => t.id !== id) })),
-      clearCompleted: () =>
-        set((s) => ({ tasks: s.tasks.filter((t) => !t.completed) })),
-    }),
-    {
-      name: 'taskpilot:v1',
-      partialize: (s) => ({ tasks: s.tasks }),
-    },
-  ),
-);
+  addTask: async ({ title, notes, priority, dueDate, tags, recurrence }) => {
+    const cleanTitle = title.trim();
+    const cleanNotes = notes?.trim() || undefined;
+    const createdAt = Date.now();
+
+    if (recurrence && dueDate) {
+      const groupId = uid();
+      const occurrences = expandRecurrence(dueDate, recurrence);
+      const newTasks: Task[] = occurrences.map((iso, idx) => ({
+        id: uid(),
+        title: cleanTitle,
+        notes: cleanNotes,
+        completed: false,
+        priority,
+        dueDate: iso,
+        tags,
+        createdAt: createdAt + idx,
+        recurrence,
+        recurrenceGroupId: groupId,
+      }));
+
+      try {
+        await Promise.all(newTasks.map((task) => apiCreateTask(task)));
+        set((s) => ({ tasks: [...newTasks, ...s.tasks] }));
+      } catch (error) {
+        console.error('Failed to create recurring tasks:', error);
+      }
+      return;
+    }
+
+    const newTask: Task = {
+      id: uid(),
+      title: cleanTitle,
+      notes: cleanNotes,
+      completed: false,
+      priority,
+      dueDate: dueDate || undefined,
+      tags,
+      createdAt,
+    };
+
+    try {
+      await apiCreateTask(newTask);
+      set((s) => ({ tasks: [newTask, ...s.tasks] }));
+    } catch (error) {
+      console.error('Failed to create task:', error);
+    }
+  },
+
+  updateTask: async (id, patch) => {
+    const current = get().tasks.find((t) => t.id === id);
+    if (!current) return;
+    const updated = { ...current, ...patch };
+    try {
+      await apiUpdateTask(updated);
+      set((s) => ({
+        tasks: s.tasks.map((t) => (t.id === id ? updated : t)),
+      }));
+    } catch (error) {
+      console.error('Failed to update task:', error);
+    }
+  },
+
+  toggleTask: async (id) => {
+    const current = get().tasks.find((t) => t.id === id);
+    if (!current) return;
+    const updated: Task = {
+      ...current,
+      completed: !current.completed,
+      completedAt: !current.completed ? Date.now() : undefined,
+    };
+    try {
+      await apiUpdateTask(updated);
+      set((s) => ({
+        tasks: s.tasks.map((t) => (t.id === id ? updated : t)),
+      }));
+    } catch (error) {
+      console.error('Failed to toggle task:', error);
+    }
+  },
+
+  deleteTask: async (id) => {
+    try {
+      await apiDeleteTask(id);
+      set((s) => ({ tasks: s.tasks.filter((t) => t.id !== id) }));
+    } catch (error) {
+      console.error('Failed to delete task:', error);
+    }
+  },
+
+  clearCompleted: async () => {
+    const completedTasks = get().tasks.filter((t) => t.completed);
+    try {
+      await Promise.all(completedTasks.map((t) => apiDeleteTask(t.id)));
+      set((s) => ({ tasks: s.tasks.filter((t) => !t.completed) }));
+    } catch (error) {
+      console.error('Failed to clear completed tasks:', error);
+    }
+  },
+}));
