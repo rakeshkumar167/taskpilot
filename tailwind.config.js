@@ -29,29 +29,47 @@ export default {
           100: '#f4f4f5',
         },
         accent: {
-          DEFAULT: '#f59e0b', // amber-500
-          hover: '#d97706', // amber-600
-          soft: '#fef3c7', // amber-100
-          softer: '#fffbeb', // amber-50
-          ring: '#fcd34d', // amber-300
-          ink: '#92400e', // amber-800
+          DEFAULT: '#7c3aed', // violet-600
+          hover: '#6d28d9', // violet-700
+          soft: '#ede9fe', // violet-100
+          softer: '#f5f3ff', // violet-50
+          ring: '#c4b5fd', // violet-300
+          ink: '#5b21b6', // violet-800
         },
         rose: {
-          DEFAULT: '#f43f5e', // rose-500
-          soft: '#ffe4e6', // rose-100
-          softer: '#fff1f2', // rose-50
-          ink: '#9f1239', // rose-800
+          DEFAULT: '#ec4899', // pink-500
+          soft: '#fce7f3', // pink-100
+          softer: '#fdf2f8', // pink-50
+          ink: '#9d174d', // pink-800
+        },
+        mint: {
+          DEFAULT: '#10b981', // emerald-500
+          soft: '#d1fae5', // emerald-100
+          softer: '#ecfdf5', // emerald-50
+          ink: '#065f46', // emerald-800
+        },
+        sky: {
+          DEFAULT: '#0ea5e9', // sky-500
+          soft: '#e0f2fe', // sky-100
+          softer: '#f0f9ff', // sky-50
+          ink: '#075985', // sky-800
+        },
+        sun: {
+          DEFAULT: '#f59e0b', // amber-500
+          soft: '#fef3c7', // amber-100
+          softer: '#fffbeb', // amber-50
+          ink: '#92400e', // amber-800
         },
         priority: {
-          high: '#dc2626',
-          'high-soft': '#fef2f2',
-          'high-ink': '#991b1b',
-          med: '#d97706',
-          'med-soft': '#fffbeb',
-          'med-ink': '#92400e',
-          low: '#0891b2',
-          'low-soft': '#ecfeff',
-          'low-ink': '#155e75',
+          high: '#ec4899', // pink-500
+          'high-soft': '#fce7f3',
+          'high-ink': '#9d174d',
+          med: '#7c3aed', // violet-600
+          'med-soft': '#ede9fe',
+          'med-ink': '#5b21b6',
+          low: '#10b981', // emerald-500
+          'low-soft': '#d1fae5',
+          'low-ink': '#065f46',
         },
       },
       borderRadius: {
@@ -66,9 +84,30 @@ export default {
           '0%': { opacity: '0', transform: 'translateY(2px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        float: {
+          '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+          '50%': { transform: 'translateY(-12px) rotate(3deg)' },
+        },
+        floatSlow: {
+          '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+          '50%': { transform: 'translateY(-20px) rotate(-5deg)' },
+        },
+        wiggle: {
+          '0%, 100%': { transform: 'rotate(-3deg)' },
+          '50%': { transform: 'rotate(3deg)' },
+        },
+        pop: {
+          '0%': { transform: 'scale(0.95)', opacity: '0' },
+          '60%': { transform: 'scale(1.02)' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 160ms ease-out',
+        float: 'float 6s ease-in-out infinite',
+        floatSlow: 'floatSlow 9s ease-in-out infinite',
+        wiggle: 'wiggle 3s ease-in-out infinite',
+        pop: 'pop 400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
       },
     },
   },
