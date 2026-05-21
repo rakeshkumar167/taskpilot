@@ -130,7 +130,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       await db.execute(
         'INSERT INTO tasks (id, userId, title, notes, dueDate, priority, completed, tags, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        [id, user.id, title, notes, dueDate, priority, 0, JSON.stringify(tags), Date.now()]
+        [id, user.id, title, notes, dueDate, priority, 0, JSON.stringify(tags), Date.now().toString()]
       );
 
       return res.status(201).json({ id });

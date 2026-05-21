@@ -52,7 +52,7 @@ export async function exchangeCodeForUser(code: string): Promise<User> {
     const userId = crypto.randomUUID();
     await db.execute(
       'INSERT INTO users (id, googleId, email, name, avatar, createdAt) VALUES (?, ?, ?, ?, ?, ?)',
-      [userId, googleUser.id, googleUser.email, googleUser.name, googleUser.picture, Date.now()]
+      [userId, googleUser.id, googleUser.email, googleUser.name, googleUser.picture, Date.now().toString()]
     );
     user = await db.execute('SELECT * FROM users WHERE id = ?', [userId]);
   }
@@ -68,11 +68,11 @@ export async function exchangeCodeForUser(code: string): Promise<User> {
 
 export async function createSession(userId: string): Promise<string> {
   const sessionId = crypto.randomUUID();
-  const expiresAt = Date.now() + SESSION_DURATION;
+  const expiresAt = Date.now().toString() + SESSION_DURATION;
 
   await db.execute(
     'INSERT INTO sessions (id, userId, expiresAt, createdAt) VALUES (?, ?, ?, ?)',
-    [sessionId, userId, expiresAt, Date.now()]
+    [sessionId, userId, expiresAt, Date.now().toString()]
   );
 
   return sessionId;
@@ -81,7 +81,7 @@ export async function createSession(userId: string): Promise<string> {
 export async function validateSession(sessionId: string): Promise<User | null> {
   const result = await db.execute(
     'SELECT u.* FROM users u JOIN sessions s ON u.id = s.userId WHERE s.id = ? AND s.expiresAt > ?',
-    [sessionId, Date.now()]
+    [sessionId, Date.now().toString()]
   );
 
   if (result.rows.length === 0) {
