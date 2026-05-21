@@ -25,7 +25,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const method = req.method;
   const url = req.url || '';
-  const pathname = `/api${url.split('?')[0]}`;
+  let pathname = url.split('?')[0];
+  // Ensure pathname starts with /api for route matching
+  if (!pathname.startsWith('/api')) {
+    pathname = `/api${pathname.startsWith('/') ? '' : '/'}${pathname}`;
+  }
   const query = req.query;
 
   console.log('Request:', { method, pathname, url });
