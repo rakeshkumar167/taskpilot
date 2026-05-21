@@ -6,3 +6,5 @@ dist-ssr
 *.log
 .vscode
 .idea
+.env.local
+.env.*.local
