@@ -1,14 +1,16 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { Menu } from 'lucide-react';
 import { Sidebar } from './components/Sidebar';
 import { Topbar } from './components/Topbar';
 import { TaskList } from './components/TaskList';
 import { TaskFormModal } from './components/TaskFormModal';
+import ProtectedLayout from './components/ProtectedLayout';
 import { useStore } from './store';
 import { isToday, isUpcoming, todayISO } from './lib/date';
 import type { Task } from './types';
+import type { User } from './types/auth';
 
-export default function App() {
+function AppContent() {
   const view = useStore((s) => s.view);
   const tasks = useStore((s) => s.tasks);
   const filters = useStore((s) => s.filters);
@@ -28,8 +30,7 @@ export default function App() {
     return {
       all: tasks.filter((t) => !t.completed).length,
       today: tasks.filter((t) => !t.completed && t.dueDate === today).length,
-      upcoming: tasks.filter((t) => !t.completed && isUpcoming(t.dueDate))
-        .length,
+      upcoming: tasks.filter((t) => !t.completed && isUpcoming(t.dueDate)).length,
       completed: tasks.filter((t) => t.completed).length,
     };
   }, [tasks]);
@@ -37,7 +38,6 @@ export default function App() {
   const filteredTasks = useMemo(() => {
     let list = tasks.slice();
 
-    // view scope
     if (view === 'today') {
       list = list.filter((t) => !t.completed && isToday(t.dueDate));
     } else if (view === 'upcoming') {
@@ -45,13 +45,11 @@ export default function App() {
     } else if (view === 'completed') {
       list = list.filter((t) => t.completed);
     } else {
-      // all: hide completed by default unless status filter says so
       if (filters.status !== 'completed') {
         list = list.filter((t) => !t.completed);
       }
     }
 
-    // status filter overrides
     if (filters.status === 'active') list = list.filter((t) => !t.completed);
     if (filters.status === 'completed') list = list.filter((t) => t.completed);
 
@@ -70,7 +68,6 @@ export default function App() {
       );
     }
 
-    // sort: incomplete first, then high → low priority, then due date asc, then createdAt desc
     const pOrder: Record<string, number> = { high: 0, medium: 1, low: 2 };
     list.sort((a, b) => {
       if (a.completed !== b.completed) return a.completed ? 1 : -1;
@@ -98,7 +95,6 @@ export default function App() {
 
   return (
     <div className="min-h-full h-full flex bg-canvas">
-      {/* Sidebar (desktop) */}
       <aside className="hidden md:flex md:flex-col w-64 shrink-0 border-r border-ink-200 bg-canvas">
         <Sidebar
           counts={counts}
@@ -108,7 +104,6 @@ export default function App() {
         />
       </aside>
 
-      {/* Mobile drawer */}
       {navOpen && (
         <div
           className="md:hidden fixed inset-0 z-40 bg-black/30 animate-fadeIn"
@@ -132,7 +127,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Main */}
       <main className="flex-1 min-w-0 flex flex-col">
         <div className="md:hidden flex items-center gap-2 px-4 py-3 border-b border-ink-200 bg-canvas">
           <button
@@ -161,5 +155,21 @@ export default function App() {
         existingTags={allTags}
       />
     </div>
+  );
+}
+
+export default function App() {
+  const setUser = useStore((s) => s.setUser);
+
+  const handleUserLoaded = useCallback((user: User | null) => {
+    if (user) {
+      setUser(user);
+    }
+  }, [setUser]);
+
+  return (
+    <ProtectedLayout onUserLoaded={handleUserLoaded}>
+      <AppContent />
+    </ProtectedLayout>
   );
 }

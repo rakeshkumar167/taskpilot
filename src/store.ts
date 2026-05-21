@@ -1,17 +1,20 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Filters, Priority, Recurrence, Task, View } from './types';
+import type { User } from './types/auth';
 
 interface State {
   tasks: Task[];
   view: View;
   filters: Filters;
+  user: User | null;
   setView: (v: View) => void;
   setSearch: (q: string) => void;
   setPriorityFilter: (p: Priority | 'all') => void;
   setStatusFilter: (s: Filters['status']) => void;
   setTagFilter: (tag: string | null) => void;
   clearFilters: () => void;
+  setUser: (user: User | null) => void;
   addTask: (input: {
     title: string;
     notes?: string;
@@ -141,6 +144,7 @@ export const useStore = create<State>()(
       tasks: seedTasks(),
       view: 'all',
       filters: defaultFilters,
+      user: null,
       setView: (v) => set({ view: v }),
       setSearch: (q) => set((s) => ({ filters: { ...s.filters, search: q } })),
       setPriorityFilter: (p) =>
@@ -149,6 +153,7 @@ export const useStore = create<State>()(
         set((s) => ({ filters: { ...s.filters, status: st } })),
       setTagFilter: (tag) => set((s) => ({ filters: { ...s.filters, tag } })),
       clearFilters: () => set({ filters: defaultFilters }),
+      setUser: (user) => set({ user }),
       addTask: ({ title, notes, priority, dueDate, tags, recurrence }) =>
         set((s) => {
           const cleanTitle = title.trim();
