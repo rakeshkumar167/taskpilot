@@ -25,8 +25,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const method = req.method;
   const url = req.url || '';
-  const pathname = url.split('?')[0];
+  const pathname = `/api${url.split('?')[0]}`;
   const query = req.query;
+
+  console.log('Request:', { method, pathname, url });
 
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
