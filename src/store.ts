@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { fetchTasks } from './lib/api';
 import type { Filters, Priority, Recurrence, Task, View } from './types';
 import type { User } from './types/auth';
 
@@ -15,6 +16,7 @@ interface State {
   setTagFilter: (tag: string | null) => void;
   clearFilters: () => void;
   setUser: (user: User | null) => void;
+  loadTasks: () => Promise<void>;
   addTask: (input: {
     title: string;
     notes?: string;
@@ -154,6 +156,14 @@ export const useStore = create<State>()(
       setTagFilter: (tag) => set((s) => ({ filters: { ...s.filters, tag } })),
       clearFilters: () => set({ filters: defaultFilters }),
       setUser: (user) => set({ user }),
+      loadTasks: async () => {
+        try {
+          const tasks = await fetchTasks();
+          set({ tasks });
+        } catch (error) {
+          console.error('Failed to load tasks:', error);
+        }
+      },
       addTask: ({ title, notes, priority, dueDate, tags, recurrence }) =>
         set((s) => {
           const cleanTitle = title.trim();

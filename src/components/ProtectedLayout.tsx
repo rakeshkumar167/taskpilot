@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { fetchCurrentUser } from '../lib/api';
+import { useStore } from '../store';
 import type { User } from '../types/auth';
 import LoginPage from '../pages/LoginPage';
 
@@ -17,6 +18,11 @@ export default function ProtectedLayout({ children, onUserLoaded }: ProtectedLay
       const currentUser = await fetchCurrentUser();
       setUser(currentUser);
       onUserLoaded(currentUser);
+
+      if (currentUser) {
+        await useStore.getState().loadTasks();
+      }
+
       setLoading(false);
     };
 
