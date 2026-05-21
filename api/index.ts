@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { initDb } from './db';
+import { initDb } from './db.js';
 import {
   exchangeCodeForUser,
   createSession,
@@ -8,8 +8,8 @@ import {
   setSessionCookie,
   clearSessionCookie,
   getSessionIdFromCookie,
-} from './auth';
-import { db } from './db';
+} from './auth.js';
+import { db } from './db.js';
 
 // Initialize database on cold start
 let dbInitialized = false;
@@ -23,7 +23,10 @@ async function ensureDbInit() {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   await ensureDbInit();
 
-  const { pathname, query, method } = req;
+  const method = req.method;
+  const url = req.url || '';
+  const pathname = url.split('?')[0];
+  const query = req.query;
 
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
