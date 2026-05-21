@@ -171,10 +171,10 @@ export function TaskFormModal({ open, onClose, editingTask, existingTags }: Prop
             exit={{ y: 20, opacity: 0, scale: 0.98 }}
             transition={{ type: 'spring', stiffness: 380, damping: 28 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full sm:max-w-lg bg-surface rounded-t-2xl sm:rounded-2xl border border-ink-200 shadow-card"
+            className="w-full sm:max-w-lg bg-surface rounded-t-2xl sm:rounded-2xl border border-ink-200 shadow-card flex flex-col max-h-[92vh] sm:max-h-[85vh]"
           >
-            <form onSubmit={onSubmit}>
-              <div className="flex items-center justify-between p-4 sm:p-5 border-b border-ink-200">
+            <form onSubmit={onSubmit} className="flex flex-col flex-1 min-h-0">
+              <div className="flex items-center justify-between p-4 sm:p-5 border-b border-ink-200 shrink-0">
                 <h2
                   id="task-modal-title"
                   className="font-semibold tracking-tight text-ink-900"
@@ -191,7 +191,7 @@ export function TaskFormModal({ open, onClose, editingTask, existingTags }: Prop
                 </button>
               </div>
 
-              <div className="p-4 sm:p-5 space-y-4">
+              <div className="p-4 sm:p-5 space-y-4 overflow-y-auto scroll-soft flex-1 min-h-0">
                 <div>
                   <label htmlFor="title" className="sr-only">
                     Title
@@ -401,7 +401,7 @@ export function TaskFormModal({ open, onClose, editingTask, existingTags }: Prop
                 )}
               </div>
 
-              <div className="p-4 sm:p-5 border-t border-ink-200 flex items-center justify-between gap-2">
+              <div className="p-4 sm:p-5 border-t border-ink-200 flex items-center justify-between gap-2 shrink-0">
                 <div>
                   {editingTask && (
                     <button

@@ -11,6 +11,12 @@ const priorityPill: Record<Priority, string> = {
   low: 'bg-priority-low-soft text-priority-low-ink ring-1 ring-inset ring-priority-low/20',
 };
 
+const priorityCardTint: Record<Priority, string> = {
+  high: 'bg-priority-high/[0.06] border-priority-high/20',
+  medium: 'bg-priority-med/[0.06] border-priority-med/20',
+  low: 'bg-priority-low/[0.06] border-priority-low/20',
+};
+
 const priorityLabel: Record<Priority, string> = {
   high: 'High',
   medium: 'Med',
@@ -34,8 +40,8 @@ export function TaskItem({ task, onEdit }: Props) {
       whileHover={{ y: -2, scale: 1.005 }}
       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
       className={clsx(
-        'group card p-3 sm:p-3.5 flex items-start gap-3 transition-colors hover:border-accent/40 hover:shadow-md',
-        task.completed && 'bg-ink-100/50',
+        'group card p-3 sm:p-3.5 flex items-start gap-3 transition-colors hover:shadow-md',
+        task.completed ? 'bg-ink-100/50' : priorityCardTint[task.priority],
       )}
     >
       <motion.button
