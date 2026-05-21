@@ -35,19 +35,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // Auth: POST /api/auth/callback
-    if (pathname === '/api/auth/callback' && method === 'POST') {
+    // Auth: GET /api/auth/callback (Google OAuth redirect)
+    if (pathname === '/api/auth/callback' && method === 'GET') {
       const { code } = query as { code: string };
 
       if (!code) {
         return res.status(400).json({ error: 'Missing authorization code' });
       }
 
-      const user = await exchangeCodeForUser(code);
-      const sessionId = await createSession(user.id);
+      try {
+        const user = await exchangeCodeForUser(code);
+        const sessionId = await createSession(user.id);
 
-      res.setHeader('Set-Cookie', setSessionCookie(sessionId));
-      return res.status(200).json({ user });
+        res.setHeader('Set-Cookie', setSessionCookie(sessionId));
+        // Redirect back to app after successful auth
+        return res.redirect(302, '/');
+      } catch (error) {
+        console.error('OAuth exchange failed:', error);
+        return res.redirect(302, '/?error=oauth_failed');
+      }
     }
 
     // Auth: GET /api/auth/user
