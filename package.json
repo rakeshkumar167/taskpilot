@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "GOOGLE_REDIRECT_URI=http://localhost:5173/api/auth/callback vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview"
   },
